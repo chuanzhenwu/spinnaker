@@ -36,6 +36,7 @@ import com.netflix.spinnaker.clouddriver.google.model.GoogleDisk
 import com.netflix.spinnaker.clouddriver.google.model.GoogleDistributionPolicy
 import com.netflix.spinnaker.clouddriver.google.model.callbacks.Utils
 import com.netflix.spinnaker.clouddriver.google.provider.view.GoogleClusterProvider
+import com.netflix.spinnaker.clouddriver.google.deploy.description.BaseGoogleInstanceDescription
 import org.springframework.beans.factory.annotation.Autowired
 
 class CopyLastGoogleServerGroupAtomicOperation extends GoogleAtomicOperation<DeploymentResult> {

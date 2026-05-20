@@ -593,8 +593,9 @@ public abstract class AbstractGoogleServerGroupCachingAgent
                 Autoscaler autoscaler = autoscalerMap.get(key);
                 InstanceTemplate instanceTemplate =
                     instanceTemplatesMap.get(Utils.getLocalName(manager.getInstanceTemplate()));
-                return Optional.of(createServerGroup(
-                    manager, ownedInstances, instanceTemplate, autoscaler, providerCache));
+                return Optional.of(
+                    createServerGroup(
+                        manager, ownedInstances, instanceTemplate, autoscaler, providerCache));
               } catch (Exception e) {
                 log.error("Failed to create server group for manager: " + manager.getName(), e);
                 return Optional.<GoogleServerGroup>empty();
