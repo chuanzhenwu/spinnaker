@@ -677,41 +677,47 @@ public class GoogleInternalHttpLoadBalancerCachingAgent
     Integer port = null;
     GoogleHealthCheck.HealthCheckType hcType = null;
     String requestPath = null;
+    String grpcServiceName = null;
+    String portSpecification = null;
     if (healthCheck.getTcpHealthCheck() != null) {
       port = healthCheck.getTcpHealthCheck().getPort();
+      portSpecification = healthCheck.getTcpHealthCheck().getPortSpecification();
       hcType = GoogleHealthCheck.HealthCheckType.TCP;
     } else if (healthCheck.getSslHealthCheck() != null) {
       port = healthCheck.getSslHealthCheck().getPort();
+      portSpecification = healthCheck.getSslHealthCheck().getPortSpecification();
       hcType = GoogleHealthCheck.HealthCheckType.SSL;
     } else if (healthCheck.getHttpHealthCheck() != null) {
       port = healthCheck.getHttpHealthCheck().getPort();
+      portSpecification = healthCheck.getHttpHealthCheck().getPortSpecification();
       requestPath = healthCheck.getHttpHealthCheck().getRequestPath();
       hcType = GoogleHealthCheck.HealthCheckType.HTTP;
     } else if (healthCheck.getHttpsHealthCheck() != null) {
       port = healthCheck.getHttpsHealthCheck().getPort();
+      portSpecification = healthCheck.getHttpsHealthCheck().getPortSpecification();
       requestPath = healthCheck.getHttpsHealthCheck().getRequestPath();
       hcType = GoogleHealthCheck.HealthCheckType.HTTPS;
     } else if (healthCheck.getHttp2HealthCheck() != null) {
       port = healthCheck.getHttp2HealthCheck().getPort();
+      portSpecification = healthCheck.getHttp2HealthCheck().getPortSpecification();
       requestPath = healthCheck.getHttp2HealthCheck().getRequestPath();
       hcType = GoogleHealthCheck.HealthCheckType.HTTP2;
     } else if (healthCheck.getGrpcHealthCheck() != null) {
       port = healthCheck.getGrpcHealthCheck().getPort();
-      requestPath = healthCheck.getGrpcHealthCheck().getGrpcServiceName();
+      portSpecification = healthCheck.getGrpcHealthCheck().getPortSpecification();
+      grpcServiceName = healthCheck.getGrpcHealthCheck().getGrpcServiceName();
       hcType = GoogleHealthCheck.HealthCheckType.GRPC;
     }
-    //    else if (healthCheck.getUdpHealthCheck() != null) {
-    //      port = healthCheck.getUdpHealthCheck().getPort();
-    //      hcType = GoogleHealthCheck.HealthCheckType.UDP;
-    //    }
 
-    if (port != null && hcType != null) {
+    if (hcType != null && (port != null || "USE_SERVING_PORT".equals(portSpecification))) {
       for (GoogleBackendService googleBackendService : googleBackendServices) {
         GoogleHealthCheck googleHealthCheck = new GoogleHealthCheck();
         googleHealthCheck.setName(healthCheck.getName());
         googleHealthCheck.setRequestPath(requestPath);
+        googleHealthCheck.setGrpcServiceName(grpcServiceName);
         googleHealthCheck.setSelfLink(healthCheck.getSelfLink());
         googleHealthCheck.setPort(port);
+        googleHealthCheck.setPortSpecification(portSpecification);
         googleHealthCheck.setHealthCheckType(hcType);
         googleHealthCheck.setCheckIntervalSec(healthCheck.getCheckIntervalSec());
         googleHealthCheck.setTimeoutSec(healthCheck.getTimeoutSec());
