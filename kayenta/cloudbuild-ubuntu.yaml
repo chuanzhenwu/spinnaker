@@ -1,0 +1,24 @@
+steps:
+# Step 1: Build the application using Gradle
+- name: 'eclipse-temurin:17'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    ./gradlew --no-daemon kayenta:kayenta-web:installDist -x test
+
+# Step 2: Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '--build-arg'
+  - 'TARGETARCH=amd64'
+  - '-t'
+  - 'europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/kayenta:2025.3.1-${COMMIT_SHA}'
+  - '-f'
+  - 'kayenta/Dockerfile.ubuntu'
+  - 'kayenta'
+options:
+  logging: CLOUD_LOGGING_ONLY
+images:
+- europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/kayenta:2025.3.1-${COMMIT_SHA}
