@@ -26,7 +26,7 @@ export class ExecutionsTransformer {
       }
     });
     execution.deploymentTargets = uniq(targets)
-      .filter((a) => !!a)
+      .filter((a) => !!a && !a.includes('${'))
       .sort();
   }
 
