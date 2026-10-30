@@ -3,6 +3,8 @@ export const GCE_LOAD_BALANCER_TYPES = ['NETWORK', 'INTERNAL', 'TCP', 'SSL', 'HT
 export type GceLoadBalancerType = typeof GCE_LOAD_BALANCER_TYPES[number];
 export type GceLoadBalancerEditorMode = 'create' | 'edit' | 'pipeline';
 export type GceLoadBalancerProtocol = 'TCP' | 'UDP' | 'HTTP' | 'HTTPS' | 'HTTP2' | 'GRPC' | 'SSL';
+// USE_NAMED_PORT is not offered in Deck; the caching agents skip those health checks.
+export type GceHealthCheckPortSpecification = 'USE_FIXED_PORT' | 'USE_SERVING_PORT';
 
 export interface IGceLoadBalancerCapabilities {
   address: boolean;
@@ -67,6 +69,7 @@ export interface IGceLoadBalancerHealthCheck {
   host?: string;
   name?: string;
   port?: number;
+  portSpecification?: GceHealthCheckPortSpecification;
   proxyHeader?: string;
   requestPath?: string;
   timeoutSec?: number;
