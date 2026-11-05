@@ -277,6 +277,44 @@ describe('GCE server group Advanced Settings page', () => {
     );
     expectAdvancedError(wrapper, 'gce-advanced-auth-scopes-error', 'Auth scopes cannot be empty.');
   });
+
+  it('restores and edits the Workload Identity configuration', () => {
+    const values = command({
+      workloadIdentityConfig: { identity: 'existing-identity', identityCertificateEnabled: true },
+    });
+    const wrapper = shallow(<AdvancedSettings app={{} as any} formik={formik(values)} />);
+    const identity = () => wrapper.find('[data-testid="workload-identity-identity"]');
+    const certificate = () => wrapper.find('[data-testid="workload-identity-certificate"]');
+
+    expect(identity().prop('value')).toBe('existing-identity');
+    expect(certificate().prop('checked')).toBe(true);
+
+    identity().simulate('change', { target: { value: 'new-identity' } });
+    expect(values.workloadIdentityConfig).toEqual({ identity: 'new-identity', identityCertificateEnabled: true });
+
+    certificate().simulate('change', { target: { checked: false } });
+    expect(values.workloadIdentityConfig).toEqual({ identity: 'new-identity', identityCertificateEnabled: false });
+  });
+
+  it('keeps an empty Workload Identity configuration so clearing it removes an inherited setting', () => {
+    const values = command({
+      workloadIdentityConfig: { identity: 'existing-identity', identityCertificateEnabled: false },
+    });
+    const wrapper = shallow(<AdvancedSettings app={{} as any} formik={formik(values)} />);
+
+    wrapper.find('[data-testid="workload-identity-identity"]').simulate('change', { target: { value: '' } });
+
+    expect(values.workloadIdentityConfig).toEqual({ identity: '', identityCertificateEnabled: false });
+  });
+
+  it('leaves the Workload Identity configuration unset until it is edited', () => {
+    const values = command();
+    const wrapper = shallow(<AdvancedSettings app={{} as any} formik={formik(values)} />);
+
+    expect(wrapper.find('[data-testid="workload-identity-identity"]').prop('value')).toBe('');
+    expect(wrapper.find('[data-testid="workload-identity-certificate"]').prop('checked')).toBe(false);
+    expect(values.workloadIdentityConfig).toBeUndefined();
+  });
 });
 
 function expectAdvancedError(wrapper: ReturnType<typeof shallow>, id: string, message: string): void {

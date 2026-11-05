@@ -856,6 +856,8 @@ public class BasicGoogleDeployHandler
         .setLabels(labels)
         .setScheduling(scheduling)
         .setServiceAccounts(serviceAccounts)
+        .setWorkloadIdentityConfig(
+            GCEUtil.buildWorkloadIdentityConfig(description.getWorkloadIdentityConfig()))
         .setResourceManagerTags(description.getResourceManagerTags());
   }
 
