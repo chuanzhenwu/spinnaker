@@ -1,0 +1,21 @@
+# Files excluded from `gcloud builds submit`.
+#
+# Without this file, gcloud falls back to .gitignore, whose `build/` rule also
+# drops source packages named `build` (for example echo/.../echo/build and
+# igor/.../igor/build), which breaks compilation. Only exclude real build output.
+
+.gcloudignore
+.git/
+.gitignore
+.gradle/
+**/.gradle/
+**/node_modules/
+.idea/
+**/*.iml
+.agents/
+
+# Gradle and Deck build output
+build/
+**/build/
+!**/src/**/build/
+!**/src/**/build/**

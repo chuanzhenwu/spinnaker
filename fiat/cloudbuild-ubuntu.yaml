@@ -20,5 +20,7 @@ steps:
   - 'fiat'
 options:
   logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+timeout: '7200s'
 images:
 - europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/fiat:2026.3.x-${COMMIT_SHA}

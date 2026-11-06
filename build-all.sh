@@ -10,7 +10,7 @@ set -euo pipefail
 REPO_ROOT=$(git rev-parse --show-toplevel)
 cd "$REPO_ROOT"
 
-SERVICES=(clouddriver deck echo fiat front50 gate igor kayenta keel orca rosco)
+SERVICES=(clouddriver deck echo fiat front50 gate igor kayenta orca rosco)
 if [ "$#" -gt 0 ]; then
   SERVICES=("$@")
 fi
