@@ -1,0 +1,35 @@
+steps:
+# Step 1: Build the Deck modules and webpack bundle (same as the upstream :deck:webpack task)
+- name: 'node:24'
+  dir: 'deck'
+  entrypoint: 'bash'
+  env:
+  - 'NODE_ENV=production'
+  - 'GATE_HOST=spinnaker-api-prestaging.prod.netflix.net'
+  - 'NODE_OPTIONS=--max_old_space_size=8192 --openssl-legacy-provider'
+  args:
+  - '-c'
+  - |
+    set -euo pipefail
+    corepack enable
+    NODE_ENV=development pnpm install --frozen-lockfile
+    pnpm modules
+    pnpm build
+
+# Step 2: Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '--build-arg'
+  - 'TARGETARCH=amd64'
+  - '-t'
+  - 'europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/deck:2026.3.x-${COMMIT_SHA}'
+  - '-f'
+  - 'deck/Dockerfile.ubuntu'
+  - 'deck'
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_32'
+timeout: '3600s'
+images:
+- europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/deck:2026.3.x-${COMMIT_SHA}

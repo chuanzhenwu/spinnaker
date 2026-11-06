@@ -1,0 +1,24 @@
+steps:
+# Step 1: Build the application using Gradle
+- name: 'eclipse-temurin:17'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    ./gradlew --no-daemon echo:echo-web:installDist -x test
+
+# Step 2: Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '--build-arg'
+  - 'TARGETARCH=amd64'
+  - '-t'
+  - 'europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/echo:2026.3.x-${COMMIT_SHA}'
+  - '-f'
+  - 'echo/Dockerfile.ubuntu'
+  - 'echo'
+options:
+  logging: CLOUD_LOGGING_ONLY
+images:
+- europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/echo:2026.3.x-${COMMIT_SHA}

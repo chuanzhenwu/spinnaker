@@ -11,6 +11,6 @@ fi
 
 cd "$REPO_ROOT"
 
-gcloud builds submit . --config=kayenta/cloudbuild-ubuntu.yaml --project=waze-ci --substitutions=COMMIT_SHA="${COMMIT_SHA}"
+gcloud builds submit . --config=kayenta/cloudbuild-ubuntu.yaml --project=waze-ci --substitutions=COMMIT_SHA="${COMMIT_SHA}" "$@"
 
 echo "Image built and pushed to: europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/kayenta:2026.3.x-${COMMIT_SHA}"
