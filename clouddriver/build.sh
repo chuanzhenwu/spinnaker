@@ -1,8 +1,12 @@
 #!/bin/bash
+# Build and push the clouddriver image with two tags:
+#   <version>           moves to the newest build
+#   <version>-<git sha> fixed, identifies the commit
+# Override the version with VERSION=..., and pass extra gcloud flags (for example --async).
 
-# Find the repository root
 COMMIT_SHA=$(git rev-parse --short HEAD)
 REPO_ROOT=$(git rev-parse --show-toplevel)
+VERSION=${VERSION:-2026.3.2}
 
 if [ -z "$REPO_ROOT" ]; then
   echo "Error: Could not find repository root."
@@ -11,6 +15,7 @@ fi
 
 cd "$REPO_ROOT"
 
-gcloud builds submit . --config=clouddriver/cloudbuild-ubuntu.yaml --project=waze-ci --substitutions=COMMIT_SHA="${COMMIT_SHA}" "$@"
+gcloud builds submit . --config=clouddriver/cloudbuild-ubuntu.yaml --project=waze-ci \
+  --substitutions=COMMIT_SHA="${COMMIT_SHA}",_VERSION="${VERSION}" "$@"
 
-echo "Image built and pushed to: europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:2026.3.x-${COMMIT_SHA}"
+echo "Images: europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:${VERSION} and europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:${VERSION}-${COMMIT_SHA}"

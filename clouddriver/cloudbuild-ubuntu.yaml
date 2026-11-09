@@ -14,7 +14,9 @@ steps:
   - '--build-arg'
   - 'TARGETARCH=amd64'
   - '-t'
-  - 'europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:2026.3.x-${COMMIT_SHA}'
+  - 'europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:${_VERSION}'
+  - '-t'
+  - 'europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:${_VERSION}-${COMMIT_SHA}'
   - '-f'
   - 'clouddriver/Dockerfile.ubuntu'
   - 'clouddriver'
@@ -23,4 +25,7 @@ options:
   machineType: 'E2_HIGHCPU_32'
 timeout: '7200s'
 images:
-- europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:2026.3.x-${COMMIT_SHA}
+- 'europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:${_VERSION}'
+- 'europe-west1-docker.pkg.dev/waze-ci/waze-spinnaker-images/clouddriver:${_VERSION}-${COMMIT_SHA}'
+substitutions:
+  _VERSION: '2026.3.2'
