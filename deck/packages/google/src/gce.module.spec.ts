@@ -278,7 +278,8 @@ describe('Google provider registration', () => {
     );
     expect(accountService.getAccountDetails).toHaveBeenCalledWith('test-account');
     expect(autoClose).not.toHaveBeenCalled();
-    expect(loadBalancer).toBe(summary as any);
+    expect(loadBalancer).not.toBe(summary as any);
+    expect((summary as any).elb).toBeUndefined();
     expect((loadBalancer as any).elb.dns).toEqual([
       { dnsname: 'frontend-80.example.com', protocol: 'http:' },
       { dnsname: 'frontend-443.example.com', protocol: 'https:' },
