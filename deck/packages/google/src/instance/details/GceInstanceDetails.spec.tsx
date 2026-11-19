@@ -4,6 +4,7 @@ import React from 'react';
 import type { Action } from '@spinnaker/core';
 import {
   AccountService,
+  CollapsibleSection,
   ConfirmationModalService,
   Details,
   InstanceActions,
@@ -12,6 +13,7 @@ import {
   RecentHistoryService,
 } from '@spinnaker/core';
 
+import { GceTagsList } from '../../common/GceResourceMetadata';
 import { GceInstanceDetailsComponent as GceInstanceDetails } from './GceInstanceDetails';
 
 describe('GceInstanceDetails', () => {
@@ -119,6 +121,101 @@ describe('GceInstanceDetails', () => {
     );
 
     expect(InstanceReader.getInstanceDetails).toHaveBeenCalledWith('test-account', 'us-central1', 'instance-1');
+    wrapper.unmount();
+  });
+
+  it('restores custom metadata, tags, labels, and formatted custom machine types', async () => {
+    spyOn(AccountService, 'challengeDestructiveActions').and.returnValue(Promise.resolve(false));
+    spyOn(RecentHistoryService, 'addExtraDataToLatest');
+    spyOn(Details, 'Header').and.callFake(({ name }: any) => <div className="test-instance-header">{name}</div>);
+    spyOn(InstanceReader, 'getInstanceDetails').and.returnValue(
+      Promise.resolve(
+        instance({
+          instanceType: 'n2-custom-4-8192',
+          labels: { team: 'fnord' },
+          metadata: { items: [{ key: 'startup-script', value: 'echo hello' }] },
+          tags: { items: ['http-server'] },
+        }),
+      ),
+    );
+    const app = {
+      ...application(),
+      securityGroups: { data: [{ accountName: 'test-account', name: 'allow-http', targetTags: ['http-server'] }] },
+    };
+    const wrapper = mount(
+      <GceInstanceDetails
+        app={app}
+        instance={{ account: 'test-account', instanceId: 'instance-1', region: 'us-central1' }}
+        router={{} as any}
+        stateParams={{}}
+        stateService={{} as any}
+      />,
+    );
+    await settle();
+    wrapper.update();
+
+    const sectionChildren = (heading: string) =>
+      mount(
+        wrapper
+          .find(CollapsibleSection)
+          .filterWhere((section: any) => section.prop('heading') === heading)
+          .prop('children') as React.ReactElement,
+      );
+
+    expect(wrapper.text()).toContain('N2 4 vCPU / 8 GB RAM');
+
+    const metadata = sectionChildren('Custom Metadata');
+    expect(metadata.find('dt').text()).toContain('startup-script');
+    expect(metadata.find('dd').text()).toBe('echo hello');
+
+    const tagsSection = wrapper.find(CollapsibleSection).filterWhere((s: any) => s.prop('heading') === 'Tags');
+    expect(tagsSection.find(GceTagsList).exists()).toBe(false); // collapsed by default
+    const tags = sectionChildren('Tags');
+    expect(tags.find(GceTagsList).prop('helpMap')).toEqual({
+      'http-server': 'This tag associates this resource with security group <em>allow-http</em>.',
+    });
+    expect(tags.find('dd').text()).toContain('http-server');
+
+    const labels = sectionChildren('Labels');
+    expect(labels.find('dt').text()).toContain('team');
+    expect(labels.find('dd').text()).toBe('fnord');
+
+    [metadata, tags, labels].forEach((section) => section.unmount());
+    wrapper.unmount();
+  });
+
+  it('shows empty-state messages when an instance has no metadata, tags, or labels', async () => {
+    spyOn(AccountService, 'challengeDestructiveActions').and.returnValue(Promise.resolve(false));
+    spyOn(RecentHistoryService, 'addExtraDataToLatest');
+    spyOn(Details, 'Header').and.callFake(({ name }: any) => <div>{name}</div>);
+    spyOn(InstanceReader, 'getInstanceDetails').and.returnValue(Promise.resolve(instance()));
+    const wrapper = mount(
+      <GceInstanceDetails
+        app={application()}
+        instance={{ account: 'test-account', instanceId: 'instance-1', region: 'us-central1' }}
+        router={{} as any}
+        stateParams={{}}
+        stateService={{} as any}
+      />,
+    );
+    await settle();
+    wrapper.update();
+
+    const sectionText = (heading: string) => {
+      const section = mount(
+        wrapper
+          .find(CollapsibleSection)
+          .filterWhere((candidate: any) => candidate.prop('heading') === heading)
+          .prop('children') as React.ReactElement,
+      );
+      const text = section.text();
+      section.unmount();
+      return text;
+    };
+
+    expect(sectionText('Custom Metadata')).toBe('No custom metadata associated with this instance');
+    expect(sectionText('Tags')).toBe('No tags associated with this instance');
+    expect(sectionText('Labels')).toBe('No labels associated with this instance');
     wrapper.unmount();
   });
 
