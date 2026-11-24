@@ -1116,7 +1116,8 @@ public class BasicGoogleDeployHandlerTest {
     mockedGCEUtil
         .when(
             () ->
-                GCEUtil.resolveHttpLoadBalancerNamesMetadata(anyList(), any(), anyString(), any()))
+                GCEUtil.resolveHttpLoadBalancerNamesMetadata(
+                    anyList(), any(), anyString(), anyString(), any(), any()))
         .thenReturn(Arrays.asList("lb-1", "lb-2"));
     doReturn(mock(BackendService.class))
         .when(basicGoogleDeployHandler)
@@ -1163,7 +1164,8 @@ public class BasicGoogleDeployHandlerTest {
     mockedGCEUtil
         .when(
             () ->
-                GCEUtil.resolveHttpLoadBalancerNamesMetadata(anyList(), any(), anyString(), any()))
+                GCEUtil.resolveHttpLoadBalancerNamesMetadata(
+                    anyList(), any(), anyString(), anyString(), any(), any()))
         .thenReturn(List.of("http-lb"));
     doReturn(new BackendService())
         .when(basicGoogleDeployHandler)
